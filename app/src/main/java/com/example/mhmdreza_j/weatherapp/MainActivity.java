@@ -3,6 +3,7 @@ package com.example.mhmdreza_j.weatherapp;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -11,6 +12,7 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -38,7 +40,10 @@ import java.util.Locale;
 
 import ir.huri.jcal.JalaliCalendar;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements WeatherListener {
+
+    public static final String MAX_TEMP = "maxTemp";
+    public static final String MIN_TEMP = "minTemp";
     TextView textView_city;
     TextView textView_date;
     TextView textView_min_temp;
@@ -61,7 +66,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toast.makeText(this, "qwerty", Toast.LENGTH_SHORT).show();
         getPermissions();
         city = "Tijuana";
         imageView_background = findViewById(R.id.imageview_background);
@@ -94,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
         textView_curr_temp.bringToFront();
         textView_wind_speed = findViewById(R.id.textview_wind_speed);
         textView_wind_speed.bringToFront();
+        recyclerView = findViewById(R.id.recyclerview);
         textView_humidity = findViewById(R.id.textview_humidity);
         textView_humidity.bringToFront();
     }
@@ -349,7 +354,42 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "something wrong",Toast.LENGTH_SHORT).show();
         }
         recyclerView = findViewById(R.id.recyclerview);
-        WeatherAdapter adapter = new WeatherAdapter(weathers);
+        WeatherAdapter adapter = new WeatherAdapter(weathers, this);
         recyclerView.setAdapter(adapter);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        recyclerView.getChildAt(0).setBackground(getResources().getDrawable(R.drawable.background_clicked));
+                    }
+                }
+
+            }
+        }, 1000);
+    }
+
+    public void showChart(Weather weather) {
+        Intent intent = new Intent(MainActivity.this, ChartActivity.class);
+        intent.putIntegerArrayListExtra(MAX_TEMP, weather.getMaxTempList());
+        intent.putIntegerArrayListExtra(MIN_TEMP, weather.getMinTempList());
+        if (weather.getMaxTempList() == null || weather.getMinTempList() == null) {
+            Toast.makeText(this, "kha",Toast.LENGTH_SHORT).show();
+        }
+        startActivity(intent);
+    }
+
+    @Override
+    public void onClick(View view, int position) {
+        int count = recyclerView.getChildCount();
+        for (int i = 0; i < count; i++) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                recyclerView.getChildAt(i).setBackground(getResources().getDrawable(R.drawable.background));
+            }
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            recyclerView.getChildAt(position).setBackground(getResources().getDrawable(R.drawable.background_clicked));
+        }
+        showChart(weathers.get(position));
     }
 }

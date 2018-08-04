@@ -13,6 +13,14 @@ public class Weather {
         return state;
     }
 
+    public ArrayList<Integer> getMinTempList() {
+        return minTemp;
+    }
+
+    public ArrayList<Integer> getMaxTempList() {
+        return maxTemp;
+    }
+
     public String getDate() {
         return date;
     }
@@ -26,7 +34,6 @@ public class Weather {
         }
         return min;
     }
-
 
     public int getMaxTemp() {
         int max = maxTemp.get(0);

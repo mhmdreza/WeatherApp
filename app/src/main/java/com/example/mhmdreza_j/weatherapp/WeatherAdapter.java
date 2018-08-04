@@ -9,15 +9,17 @@ import java.util.ArrayList;
 
 public class WeatherAdapter extends RecyclerView.Adapter<WeatherViewHolder> {
     private ArrayList<Weather> list;
+    private WeatherListener listener;
 
-    WeatherAdapter(ArrayList<Weather> list) {
+    WeatherAdapter(ArrayList<Weather> list, WeatherListener listener) {
         this.list = list;
+        this.listener = listener;
     }
 
     @Override
     public WeatherViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.weather_card, null);
-        return new WeatherViewHolder(view);
+        return new WeatherViewHolder(view, listener);
     }
 
     @Override

@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">WeatherApp</string>
+    <string name="wind_speed_format">%d km/h</string>
+    <string name="humidity_format">%s%%</string>
+    <string name="curr_temp_format">%2.0d</string>
+    <string name="get_weather_data">get city weather</string>
+    <string name="get_current_city">get city name</string>
+    <string name="forecast">forecast 5 day</string>
+    <string name="persian_forcast_message">پیش بینی آب و هوا</string>
+    <string name="date_hint">today date</string>
+    <string name="city_hint">city</string>
+    <string name="persian_temp_unit">درجه سانتی گراد</string>
+</resources>

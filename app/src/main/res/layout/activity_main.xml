@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@android:color/holo_orange_light"
+    tools:context=".MainActivity"
+    tools:ignore="ExtraText">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:id="@+id/today_weather">
+        <TextView
+            android:id="@+id/textview_city"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="12dp"
+            android:hint="@string/city_hint"
+            android:textSize="24sp" />
+
+        <TextView
+            android:id="@+id/textview_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/textview_city"
+            android:layout_centerHorizontal="true"
+            android:hint="@string/date_hint"
+            android:textSize="16sp" />
+
+        <include layout="@layout/weather_stat"
+            android:layout_below="@id/textview_date"
+            android:id="@+id/weather_stat_layout"
+            android:layout_marginLeft="48dp"
+            android:layout_height="120dp"
+            android:layout_width="125dp"
+            android:layout_marginStart="48dp" />
+
+        <include layout="@layout/weather_state"
+            android:layout_below="@id/textview_date"
+            android:id="@+id/weather_state_layout"
+            android:layout_toRightOf="@id/weather_stat_layout"
+            android:layout_height="120dp"
+            android:layout_width="wrap_content"
+            android:layout_marginRight="36sp"
+            android:layout_marginEnd="36sp"
+            android:layout_toEndOf="@id/weather_stat_layout" />
+
+        <ImageView
+            android:id="@+id/imageview_background"
+            android:layout_width="wrap_content"
+            android:layout_height="200dp"
+            android:layout_alignParentTop="true"
+            android:background="@drawable/weather_background_light"/>
+
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginLeft="8dp"
+        android:id="@+id/middle_part"
+        android:background="@drawable/background"
+        android:layout_below="@id/today_weather">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="4dp"
+            android:id="@+id/imageview_cal"
+            android:background="@drawable/ic_calendar"
+            android:layout_marginRight="4dp"
+            android:layout_marginEnd="4dp"
+            android:layout_alignParentEnd="true" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:id="@+id/textview_cal"
+            android:textColor="@color/black"
+            android:text="@string/persian_forcast_message"
+            android:textSize="18sp"
+            android:layout_toLeftOf="@id/imageview_cal"
+            android:layout_toStartOf="@id/imageview_cal" />
+
+        <android.support.v7.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_below="@id/textview_cal"
+            app:layoutManager="android.support.v7.widget.GridLayoutManager"
+            android:padding="2dp"
+            android:id="@+id/recyclerview" />
+    </RelativeLayout>
+
+    <Button
+        android:id="@+id/button_forecast"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/button_background"
+        android:layout_centerHorizontal="true"
+        android:text="@string/forecast"
+        android:padding="2dp"
+        android:onClick="forecastWeather"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="8dp"
+        android:textColor="@color/black"
+        android:textSize="24sp" />
+
+    <Button
+        android:id="@+id/button_city"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/button_weather"
+        android:background="@drawable/button_background"
+        android:layout_marginBottom="8dp"
+        android:padding="2dp"
+        android:layout_centerHorizontal="true"
+        android:onClick="showCity"
+        android:text="@string/get_current_city"
+        android:textColor="@color/black"
+        android:textSize="24sp" />
+
+    <Button
+        android:id="@+id/button_weather"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/button_background"
+        android:padding="2dp"
+        android:layout_above="@id/button_forecast"
+        android:layout_centerHorizontal="true"
+        android:onClick="getWeather"
+        android:layout_marginBottom="8dp"
+        android:text="@string/get_weather_data"
+        android:textColor="@color/black"
+        android:textSize="24sp" />
+
+</RelativeLayout>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="100dp" android:layout_height="200dp"
+    android:padding="2dp"
+    android:background="@drawable/background"
+    android:layout_marginTop="8dp"
+    android:layout_marginStart="8dp"
+    android:layout_marginLeft="8dp">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+
+        android:id="@+id/textview_day_name"
+        android:hint="sdfg" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="8dp"
+        android:hint="2tir"
+        android:layout_below="@id/textview_day_name"
+        android:id="@+id/textview_date"/>
+
+    <ImageView
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginTop="8dp"
+        android:layout_below="@id/textview_date"
+        android:id="@+id/imageview_weather_state"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:id="@+id/textview_max_temp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/imageview_weather_state"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="8dp"
+        android:hint="max"
+        android:textColor="#f00" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="8dp"
+        android:hint="min"
+        android:textColor="#00f"
+        android:layout_below="@id/textview_max_temp"
+        android:id="@+id/textview_min_temp"/>
+
+</RelativeLayout>

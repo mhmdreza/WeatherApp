@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements WeatherListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         getPermissions();
-        city = "Tijuana";
+        city = "Tokyo";
         imageView_background = findViewById(R.id.imageview_background);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             imageView_background.setBackground(getResources().getDrawable(R.drawable.weather_background_light));
@@ -311,6 +311,9 @@ public class MainActivity extends AppCompatActivity implements WeatherListener {
     }
 
     public void forecastWeather(View view){
+        if(forecastData == null){
+            return;
+        }
         weathers = new ArrayList<>();
         int index = 0;
         String currDate = null;
@@ -366,7 +369,7 @@ public class MainActivity extends AppCompatActivity implements WeatherListener {
                 }
 
             }
-        }, 1000);
+        }, 300);
     }
 
     public void showChart(Weather weather) {

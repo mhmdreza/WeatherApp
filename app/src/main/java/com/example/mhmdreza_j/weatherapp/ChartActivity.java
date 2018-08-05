@@ -13,6 +13,7 @@ import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
 
 import java.util.ArrayList;
@@ -30,22 +31,26 @@ public class ChartActivity extends AppCompatActivity {
         LineChart chart = findViewById(R.id.chart);
         ArrayList<Integer> maxTemp = getIntent().getIntegerArrayListExtra(MAX_TEMP);
         ArrayList<Integer> minTemp = getIntent().getIntegerArrayListExtra(MIN_TEMP);
-        List<Entry> entries = new ArrayList<Entry>();
-        int size = 0;
-        try{
-            size = maxTemp.size();
-        }catch (Exception e){
-            Toast.makeText(this, "asdfgh", Toast.LENGTH_SHORT).show();
-        }
+        List<Entry> entries_min = new ArrayList<>();
+        List<Entry> entries_max = new ArrayList<>();
+        int size =  maxTemp.size();
         int base = 24 - 3 * size;
         for (int i = 0; i < minTemp.size(); i++) {
-            entries.add(new Entry(base, minTemp.get(i)));
+            entries_min.add(new Entry(base, minTemp.get(i)));
             base += 3;
         }
-        LineDataSet dataSet = new LineDataSet(entries, "Label");
-        dataSet.setLineWidth(3f);
-        LineData lineData = new LineData(dataSet);
-        chart.setData(lineData);
+        base = 24 - 3 * size;
+        for (int i = 0; i < maxTemp.size(); i++) {
+            entries_max.add(new Entry(base, maxTemp.get(i)));
+            base += 3;
+        }
+        LineDataSet maxDataSet = new LineDataSet(entries_max, "Max");
+        LineDataSet minDataSet = new LineDataSet(entries_min, "Min");
+        List<ILineDataSet> dataSets = new ArrayList<>();
+        dataSets.add(maxDataSet);
+        dataSets.add(minDataSet);
+        LineData data = new LineData(dataSets);
+        chart.setData(data);
         chart.invalidate();
     }
 }

@@ -12,15 +12,12 @@
         android:textSize="20sp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-
-        android:id="@+id/textview_day_name"
-        android:hint="sdfg" />
+        android:id="@+id/textview_day_name"/>
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="8dp"
-        android:hint="2tir"
         android:layout_below="@id/textview_day_name"
         android:id="@+id/textview_date"/>
 
@@ -39,16 +36,24 @@
         android:layout_below="@id/imageview_weather_state"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="8dp"
-        android:hint="max"
         android:textColor="#f00" />
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="8dp"
-        android:hint="min"
         android:textColor="#00f"
         android:layout_below="@id/textview_max_temp"
         android:id="@+id/textview_min_temp"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="8dp"
+        android:textColor="#00f"
+        android:visibility="invisible"
+        android:layout_below="@id/textview_max_temp"
+        android:id="@+id/textview_id"/>
+
 
 </RelativeLayout>

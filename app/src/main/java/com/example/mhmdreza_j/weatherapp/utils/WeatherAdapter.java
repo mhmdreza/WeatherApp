@@ -1,17 +1,21 @@
-package com.example.mhmdreza_j.weatherapp;
+package com.example.mhmdreza_j.weatherapp.utils;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.mhmdreza_j.weatherapp.R;
+import com.example.mhmdreza_j.weatherapp.models.DailyWeather;
+
 import java.util.ArrayList;
 
 public class WeatherAdapter extends RecyclerView.Adapter<WeatherViewHolder> {
-    private ArrayList<Weather> list;
+    private ArrayList<DailyWeather> list;
     private WeatherListener listener;
 
-    WeatherAdapter(ArrayList<Weather> list, WeatherListener listener) {
+
+    public WeatherAdapter(ArrayList<DailyWeather> list, WeatherListener listener) {
         this.list = list;
         this.listener = listener;
     }
@@ -32,7 +36,4 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherViewHolder> {
         return list.size();
     }
 
-//    public Weather getItem(int position) {
-//        return list.get(position);
-//    }
 }

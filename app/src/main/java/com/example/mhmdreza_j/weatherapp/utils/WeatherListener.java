@@ -1,4 +1,4 @@
-package com.example.mhmdreza_j.weatherapp;
+package com.example.mhmdreza_j.weatherapp.utils;
 
 import android.view.View;
 

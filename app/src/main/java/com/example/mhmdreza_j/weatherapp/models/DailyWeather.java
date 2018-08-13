@@ -1,13 +1,20 @@
-package com.example.mhmdreza_j.weatherapp;
+package com.example.mhmdreza_j.weatherapp.models;
 
 
 import java.util.ArrayList;
 
-public class Weather {
-    private final String date;
+import ir.huri.jcal.JalaliCalendar;
+
+public class DailyWeather {
+    private final int ID;
     private final ArrayList<Integer> minTemp;
     private final ArrayList<Integer> maxTemp;
     private final String state;
+    private final JalaliCalendar date;
+
+    public int getID() {
+        return ID;
+    }
 
     public String getState() {
         return state;
@@ -21,7 +28,7 @@ public class Weather {
         return maxTemp;
     }
 
-    public String getDate() {
+    public JalaliCalendar getDate() {
         return date;
     }
 
@@ -45,7 +52,8 @@ public class Weather {
         return max;
     }
 
-    public Weather(String date, ArrayList<Integer> minTemp, ArrayList<Integer> maxTemp, String state) {
+    public DailyWeather(int id, JalaliCalendar date, ArrayList<Integer> minTemp, ArrayList<Integer> maxTemp, String state) {
+        ID = id;
         this.date = date;
         this.minTemp = minTemp;
         this.maxTemp = maxTemp;

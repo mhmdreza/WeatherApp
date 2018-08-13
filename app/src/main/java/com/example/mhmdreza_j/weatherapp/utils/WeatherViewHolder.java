@@ -1,9 +1,12 @@
-package com.example.mhmdreza_j.weatherapp;
+package com.example.mhmdreza_j.weatherapp.utils;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.example.mhmdreza_j.weatherapp.R;
+import com.example.mhmdreza_j.weatherapp.models.DailyWeather;
 
 import ir.huri.jcal.JalaliCalendar;
 
@@ -12,11 +15,14 @@ public class WeatherViewHolder extends RecyclerView.ViewHolder {
     private TextView dateTextView;
     private TextView minTempTextView;
     private TextView maxTempTextView;
+    private TextView idTextView;
     private ImageView stateImageView;
-    public WeatherViewHolder(View itemView, final WeatherListener listener){
+
+    WeatherViewHolder(View itemView, final WeatherListener listener){
         super(itemView);
         dayNameTextView = itemView.findViewById(R.id.textview_day_name);
         dateTextView = itemView.findViewById(R.id.textview_date);
+        idTextView = itemView.findViewById(R.id.textview_id);
         minTempTextView = itemView.findViewById(R.id.textview_min_temp);
         maxTempTextView = itemView.findViewById(R.id.textview_max_temp);
         stateImageView = itemView.findViewById(R.id.imageview_weather_state);
@@ -28,7 +34,7 @@ public class WeatherViewHolder extends RecyclerView.ViewHolder {
         });
     }
 
-    public void setTextViews(Weather weather) {
+    public void setTextViews(DailyWeather weather) {
         int resID;
         switch (weather.getState()){
             case "01d":
@@ -71,27 +77,11 @@ public class WeatherViewHolder extends RecyclerView.ViewHolder {
                 resID = R.drawable.d02;
         }
         stateImageView.setImageResource(resID);
-        String date = weather.getDate();
-        JalaliCalendar calendar = new JalaliCalendar(Integer.parseInt(date.substring(0,4)),
-                Integer.parseInt(date.substring(5,7)), Integer.parseInt(date.substring(8,10)));
+        JalaliCalendar calendar = weather.getDate();
         dayNameTextView.setText(calendar.getDayOfWeekString());
         dateTextView.setText(calendar.toString());
         maxTempTextView.setText(String.valueOf(weather.getMaxTemp()));
+        idTextView.setText(String.valueOf(weather.getID()));
         minTempTextView.setText(String.valueOf(weather.getMinTemp()));
     }
-
-//    @Override
-//    public void onClick(View view) {
-//        ArrayList<View> views = itemView.getRootView().getTouchables();
-//        for (View v: views) {
-//            if(v.getBackground() == itemView.getResources().getDrawable(R.drawable.background)
-//                    || v.getBackground() == itemView.getResources().getDrawable(R.drawable.background_clicked)){
-//                v.setBackgroundResource(R.drawable.background_clicked);
-//                v.bringToFront();
-//            }
-//        }
-//        int pos = getAdapterPosition();
-//        if(pos != RecyclerView.NO_POSITION){
-//        }
-//    }
 }

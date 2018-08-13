@@ -1,4 +1,4 @@
-package com.example.mhmdreza_j.weatherapp;
+package com.example.mhmdreza_j.weatherapp.ui;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -9,7 +9,6 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -22,14 +21,16 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.example.mhmdreza_j.weatherapp.R;
+import com.example.mhmdreza_j.weatherapp.models.DailyWeather;
+import com.example.mhmdreza_j.weatherapp.models.ForecastModel;
+import com.example.mhmdreza_j.weatherapp.models.WeatherModel;
+import com.example.mhmdreza_j.weatherapp.network.WeatherProvider;
+import com.example.mhmdreza_j.weatherapp.network.WeatherService;
+import com.example.mhmdreza_j.weatherapp.utils.WeatherAdapter;
+import com.example.mhmdreza_j.weatherapp.utils.WeatherListener;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -39,11 +40,15 @@ import java.util.List;
 import java.util.Locale;
 
 import ir.huri.jcal.JalaliCalendar;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements WeatherListener {
 
     public static final String MAX_TEMP = "maxTemp";
     public static final String MIN_TEMP = "minTemp";
+    public static final String DATE = "date";
     TextView textView_city;
     TextView textView_date;
     TextView textView_min_temp;
@@ -58,15 +63,29 @@ public class MainActivity extends AppCompatActivity implements WeatherListener {
     ImageView imageView_weather_state;
     RecyclerView recyclerView;
     String city = null;
-    JSONObject data = null;
-    JSONObject forecastData = null;
+    WeatherAdapter adapter;
+    WeatherModel weatherModel;
+    ForecastModel forecastModel = null;
     JalaliCalendar jalaliCalendar;
-    ArrayList<Weather> weathers;
+    ArrayList<DailyWeather> weathers;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         getPermissions();
+        initializeViews();
+    }
+
+    private void getPermissions(){
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+        }
+    }
+
+    private void initializeViews() {
         city = "Tokyo";
         imageView_background = findViewById(R.id.imageview_background);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
@@ -102,6 +121,7 @@ public class MainActivity extends AppCompatActivity implements WeatherListener {
         textView_humidity = findViewById(R.id.textview_humidity);
         textView_humidity.bringToFront();
     }
+
     public void showCity(View view){
         if (ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -132,123 +152,110 @@ public class MainActivity extends AppCompatActivity implements WeatherListener {
                 city = addresses.get(0).getLocality();
                 textView_city.setText(city);
         }
-
     }
 
-    @SuppressLint("StaticFieldLeak")
     public void getWeather(View view){
-        new AsyncTask<Void, Void, Void>(){
+        WeatherProvider provider = new WeatherProvider();
+        WeatherService service = provider.getService();
+        Call<WeatherModel> weatherModelCall = service.getCurrentWeather(city
+                , "aed3f3107de7197e5d7e65d01bbfb2e0"
+                , "metric");
+        weatherModelCall.enqueue(new Callback<WeatherModel>() {
             @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
+            public void onResponse(Call<WeatherModel> call, Response<WeatherModel> response) {
+                if (response.isSuccessful()) {
+                    weatherModel = response.body();
+                    Toast.makeText(MainActivity.this, "weather Success!!!", Toast.LENGTH_SHORT).show();
+                    setTextViews();
+                }
+                else {
+                    Toast.makeText(MainActivity.this
+                            , "Weather:HTTP request fail with code:" + response.code()
+                            , Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override
-            protected Void doInBackground(Void... voids) {
-                data = getData("weather");
-                forecastData = getData("forecast");
-                return null;
+            public void onFailure(Call<WeatherModel> call, Throwable t) {
+                Toast.makeText(MainActivity.this, "WeatherError:" + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+        Call<ForecastModel> forecastModelCall = service.getForecastWeather(city
+                , "aed3f3107de7197e5d7e65d01bbfb2e0"
+                , "metric");
+        forecastModelCall.enqueue(new Callback<ForecastModel>() {
+            @Override
+            public void onResponse(Call<ForecastModel> call, Response<ForecastModel> response) {
+                if (response.isSuccessful()) {
+                    forecastModel = response.body();
+                    Toast.makeText(MainActivity.this, "FORECAST", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    Toast.makeText(MainActivity.this
+                            , "forecast:HTTP request fail with code:" + response.code()
+                            , Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override
-            protected void onPostExecute(Void aVoid) {
-                setTextViews();
+            public void onFailure(Call<ForecastModel> call, Throwable t) {
+                Toast.makeText(MainActivity.this, "F Error:" + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
-        }.execute();
+        });
     }
-    private JSONObject getData(String type){
-        JSONObject result;
-        try {
-            URL url = new URL("http://api.openweathermap.org/data/2.5/" + type + "?q=" + city + "&APPID=aed3f3107de7197e5d7e65d01bbfb2e0&units=metric");
 
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
-            BufferedReader reader =
-                    new BufferedReader(new InputStreamReader(connection.getInputStream()));
-
-            StringBuffer json = new StringBuffer(1024);
-            String tmp = "";
-
-            while((tmp = reader.readLine()) != null) {
-                json.append(tmp).append("\n");
-            }
-            reader.close();
-            result = new JSONObject(json.toString());
-            if(result.getInt("cod") != 200) {
-                System.out.println("Cancelled");
-                return null;
-            }
-        } catch (Exception e) {
-
-            System.out.println("Exception "+ e.getMessage());
-            return null;
-        }
-
-        return result;
-    }
     private void setTextViews(){
         @SuppressLint("SimpleDateFormat") SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
         Date date = new Date();
         String georgianDate = formatter.format(date);
         jalaliCalendar = new JalaliCalendar(new GregorianCalendar(
                 Integer.parseInt(georgianDate.substring(0, 4)), Integer.parseInt(georgianDate.substring(5, 7)) - 1, Integer.parseInt(georgianDate.substring(8))));
-        textView_date.setText(jalaliCalendar.toString());
-        try {
-            String state = data.getJSONArray("weather")
-                    .getJSONObject(0)
-                    .getString("icon");
-            int resID = getResID(state);
+        textView_city.setText(weatherModel.getName());
+        textView_curr_temp.setText(String.valueOf(weatherModel.getTemp()));
+        textView_min_temp.setText(String.valueOf(weatherModel.getTemp_min()));
+        textView_max_temp.setText(String.valueOf(weatherModel.getTemp_max()));
+        textView_humidity.setText(String.format(getString(R.string.humidity_format), weatherModel.getHumidity()));
+        textView_wind_speed.setText(String.format(getString(R.string.wind_speed_format), weatherModel.getSpeed()));
+        Long sunrise = weatherModel.getSunrise();
+        Long sunset = weatherModel.getSunset();
+        Long time = Calendar.getInstance().getTimeInMillis() / 1000;
+        if (time > sunrise && time < sunset) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                imageView_weather_state.setBackground(getResources().getDrawable(resID));
+                imageView_background.setBackground(getResources().getDrawable(R.drawable.weather_background_light));
+                textView_city.setTextColor(getResources().getColor(R.color.black));
+                textView_date.setTextColor(getResources().getColor(R.color.black));
+                textView_min_temp.setTextColor(getResources().getColor(R.color.black));
+                textView_max_temp.setTextColor(getResources().getColor(R.color.black));
+                imageView_wind.setBackground(getResources().getDrawable(R.drawable.ic_ic_wind_speed_d));
+                imageView_humidity.setBackground(getResources().getDrawable(R.drawable.ic_humidity_d));
+                textView_curr_temp.setTextColor(getResources().getColor(R.color.black));
+                textView_humidity.setTextColor(getResources().getColor(R.color.black));
+                textView_wind_speed.setTextColor(getResources().getColor(R.color.black));
+                textView_unit.setTextColor(getResources().getColor(R.color.black));
             }
-            JSONObject main = data.getJSONObject("main");
-            textView_city.setText(data.getString("name"));
-            textView_curr_temp.setText(main.getString("temp").substring(0, 2));
-            textView_min_temp.setText(main.getString("temp_min"));
-            textView_max_temp.setText(main.getString("temp_max"));
-            textView_humidity.setText(String.format(getString(R.string.humidity_format), main.getString("humidity")));
-            JSONObject wind = data.getJSONObject("wind");
-            textView_wind_speed.setText(String.format(getString(R.string.wind_speed_format), wind.getInt("speed")));
-            JSONObject sys = data.getJSONObject("sys");
-            Long sunrise = Long.parseLong(sys.getString("sunrise"));
-            Long sunset = Long.parseLong(sys.getString("sunset"));
-            Long time = Calendar.getInstance().getTimeInMillis() / 1000;
-            if(time > sunrise && time < sunset){
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    imageView_background.setBackground(getResources().getDrawable(R.drawable.weather_background_light));
-                    textView_city.setTextColor(getResources().getColor(R.color.black));
-                    textView_date.setTextColor(getResources().getColor(R.color.black));
-                    textView_min_temp.setTextColor(getResources().getColor(R.color.black));
-                    textView_max_temp.setTextColor(getResources().getColor(R.color.black));
-                    imageView_wind.setBackground(getResources().getDrawable(R.drawable.ic_ic_wind_speed_d));
-                    imageView_humidity.setBackground(getResources().getDrawable(R.drawable.ic_humidity_d));
-                    textView_curr_temp.setTextColor(getResources().getColor(R.color.black));
-                    textView_humidity.setTextColor(getResources().getColor(R.color.black));
-                    textView_wind_speed.setTextColor(getResources().getColor(R.color.black));
-                    textView_unit.setTextColor(getResources().getColor(R.color.black));
-                }
+        } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                imageView_background.setBackground(getResources().getDrawable(R.drawable.weather_background_dark));
+                textView_date.setTextColor(getResources().getColor(R.color.white));
+                imageView_wind.setBackground(getResources().getDrawable(R.drawable.ic_ic_wind_speed_n));
+                imageView_humidity.setBackground(getResources().getDrawable(R.drawable.ic_humidity_n));
+                textView_city.setTextColor(getResources().getColor(R.color.white));
+                textView_min_temp.setTextColor(getResources().getColor(R.color.white));
+                textView_max_temp.setTextColor(getResources().getColor(R.color.white));
+                textView_curr_temp.setTextColor(getResources().getColor(R.color.white));
+                textView_humidity.setTextColor(getResources().getColor(R.color.white));
+                textView_wind_speed.setTextColor(getResources().getColor(R.color.white));
+                textView_unit.setTextColor(getResources().getColor(R.color.white));
             }
-            else {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    imageView_background.setBackground(getResources().getDrawable(R.drawable.weather_background_dark));
-                    textView_date.setTextColor(getResources().getColor(R.color.white));
-                    imageView_wind.setBackground(getResources().getDrawable(R.drawable.ic_ic_wind_speed_n));
-                    imageView_humidity.setBackground(getResources().getDrawable(R.drawable.ic_humidity_n));
-                    textView_city.setTextColor(getResources().getColor(R.color.white));
-                    textView_min_temp.setTextColor(getResources().getColor(R.color.white));
-                    textView_max_temp.setTextColor(getResources().getColor(R.color.white));
-                    textView_curr_temp.setTextColor(getResources().getColor(R.color.white));
-                    textView_humidity.setTextColor(getResources().getColor(R.color.white));
-                    textView_wind_speed.setTextColor(getResources().getColor(R.color.white));
-                    textView_unit.setTextColor(getResources().getColor(R.color.white));
-                }
-                Toast.makeText(this, "night", Toast.LENGTH_LONG).show();
-            }
-        }catch (Exception e){
-
         }
-
+        textView_date.setText(jalaliCalendar.toString());
+        String state = weatherModel.getIcon();
+        int resID = getResID(state);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            imageView_weather_state.setBackground(getResources().getDrawable(resID));
+        }
     }
+
 
     private int getResID(String state) {
         int resID;
@@ -301,22 +308,14 @@ public class MainActivity extends AppCompatActivity implements WeatherListener {
         return resID;
     }
 
-    private void getPermissions(){
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-        }
-    }
-
     public void forecastWeather(View view){
-        if(forecastData == null){
+        if(forecastModel == null){
             return;
         }
         weathers = new ArrayList<>();
         int index = 0;
         String currDate = null;
+        int id = 0;
         String preDate;
         ArrayList<Integer> maxTemp = new ArrayList<>();
         ArrayList<Integer> minTemp = new ArrayList<>();
@@ -325,22 +324,19 @@ public class MainActivity extends AppCompatActivity implements WeatherListener {
         int max;
         try{
             JalaliCalendar calendar = jalaliCalendar;
-            JSONArray list = forecastData.getJSONArray("list");
-            Weather weather;
-            while (index < list.length()){
-                JSONObject timeData = list.getJSONObject(index);
-                JSONObject main = timeData.getJSONObject("main");
-                min = main.getInt("temp_min");
-                max = main.getInt("temp_max");
+            DailyWeather weather;
+            while (index < forecastModel.getLength()){
+                min = forecastModel.getTemp_min(index);
+                max = forecastModel.getTemp_max(index);
                 preDate = currDate;
-                currDate = timeData.getString("dt_txt").substring(0, 10);
-                String time = timeData.getString("dt_txt").substring(11);
+                currDate = forecastModel.getDate(index).substring(0, 10);
+                String time = forecastModel.getDate(index).substring(11);
                 if (time.equals("15:00:00") || (state == null && time.equals("21:00:00"))) {
-                    state = timeData.getJSONArray("weather")
-                            .getJSONObject(0).getString("icon");
+                    state =forecastModel.getIcon(index);
                 }
                 if (!(preDate == null) && !preDate.equals(currDate)){
-                    weather = new Weather(calendar.toString(), minTemp, maxTemp, state);
+                    weather = new DailyWeather(id, calendar, minTemp, maxTemp, state);
+                    id++;
                     weathers.add(weather);
                     maxTemp = new ArrayList<>();
                     minTemp = new ArrayList<>();
@@ -350,14 +346,14 @@ public class MainActivity extends AppCompatActivity implements WeatherListener {
                 minTemp.add(min);
                 index++;
             }
-            weather = new Weather(calendar.toString(), minTemp, maxTemp, state);
+            weather = new DailyWeather(id, calendar, minTemp, maxTemp, state);
             weathers.add(weather);
         }
         catch (Exception e){
             Toast.makeText(this, "something wrong",Toast.LENGTH_SHORT).show();
         }
         recyclerView = findViewById(R.id.recyclerview);
-        WeatherAdapter adapter = new WeatherAdapter(weathers, this);
+        adapter = new WeatherAdapter(weathers, this);
         recyclerView.setAdapter(adapter);
         new Handler().postDelayed(new Runnable() {
             @Override
@@ -372,26 +368,34 @@ public class MainActivity extends AppCompatActivity implements WeatherListener {
         }, 300);
     }
 
-    public void showChart(Weather weather) {
+    public void showChart(DailyWeather weather) {
         Intent intent = new Intent(MainActivity.this, ChartActivity.class);
         intent.putIntegerArrayListExtra(MAX_TEMP, weather.getMaxTempList());
         intent.putIntegerArrayListExtra(MIN_TEMP, weather.getMinTempList());
-        if (weather.getMaxTempList() == null || weather.getMinTempList() == null) {
-            Toast.makeText(this, "kha",Toast.LENGTH_SHORT).show();
-        }
+        intent.putExtra(DATE, weather.getDate().toString());
         startActivity(intent);
     }
 
     @Override
     public void onClick(View view, int position) {
+        Toast.makeText(this, String.valueOf(position), Toast.LENGTH_LONG).show();
         int count = recyclerView.getChildCount();
         for (int i = 0; i < count; i++) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                 recyclerView.getChildAt(i).setBackground(getResources().getDrawable(R.drawable.background));
             }
         }
+        View item = recyclerView.getChildAt(0);
+        for (int i = 0; i < count; i++) {
+            TextView textViewId = recyclerView.getChildAt(i).findViewById(R.id.textview_id);
+            int id = Integer.parseInt(textViewId.getText().toString());
+            if (id == position){
+                item = recyclerView.getChildAt(i);
+                break;
+            }
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            recyclerView.getChildAt(position).setBackground(getResources().getDrawable(R.drawable.background_clicked));
+            item.setBackground(getResources().getDrawable(R.drawable.background_clicked));
         }
         showChart(weathers.get(position));
     }

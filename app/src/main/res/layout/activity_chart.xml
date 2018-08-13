@@ -4,10 +4,30 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ChartActivity">
-
+    android:background="@drawable/background"
+    tools:context=".ui.ChartActivity">
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:background="@drawable/ic_calendar"
+        android:id="@+id/imageview_description"
+        android:layout_alignParentEnd="true" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:textSize="20sp"
+        android:textColor="@color/colorAccent"
+        android:layout_toLeftOf="@id/imageview_description"
+        android:layout_marginRight="8dp"
+        android:id="@+id/textview_description"
+        android:layout_marginEnd="8dp"
+        android:layout_toStartOf="@id/imageview_description" />
     <com.github.mikephil.charting.charts.LineChart
         android:id="@+id/chart"
+        android:layout_marginTop="24dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentTop="true" />

@@ -1,7 +1,7 @@
 package com.example.mhmdreza_j.weatherapp.network;
 
-import com.example.mhmdreza_j.weatherapp.models.ForecastModel;
-import com.example.mhmdreza_j.weatherapp.models.WeatherModel;
+import com.example.mhmdreza_j.weatherapp.models.forecast.ForecastModel;
+import com.example.mhmdreza_j.weatherapp.models.weather.WeatherModel;
 
 import retrofit2.Call;
 import retrofit2.http.GET;

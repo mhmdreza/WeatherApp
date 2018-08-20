@@ -1,5 +1,7 @@
 package com.example.mhmdreza_j.weatherapp.network;
 
+import com.example.mhmdreza_j.weatherapp.utils.ClientConfigs;
+
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -11,7 +13,7 @@ public class WeatherProvider {
     public WeatherProvider() {
         Retrofit retrofit = new Retrofit.Builder()
                 .addConverterFactory(GsonConverterFactory.create())
-                .baseUrl("http://api.openweathermap.org/data/2.5/")
+                .baseUrl(ClientConfigs.BASE_URL)
                 .client(new OkHttpClient())
                 .build();
         service = retrofit.create(WeatherService.class);

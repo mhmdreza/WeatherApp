@@ -7,18 +7,26 @@ import android.view.ViewGroup;
 
 import com.example.mhmdreza_j.weatherapp.R;
 import com.example.mhmdreza_j.weatherapp.models.DailyWeather;
+import com.example.mhmdreza_j.weatherapp.ui.MainActivity;
 
 import java.util.ArrayList;
 
 public class WeatherAdapter extends RecyclerView.Adapter<WeatherViewHolder> {
     private ArrayList<DailyWeather> list;
     private WeatherListener listener;
+    private RecyclerView recyclerView;
 
+    @Override
+    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        this.recyclerView = recyclerView;
+    }
 
     public WeatherAdapter(ArrayList<DailyWeather> list, WeatherListener listener) {
         this.list = list;
         this.listener = listener;
     }
+
 
     @Override
     public WeatherViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
@@ -28,7 +36,7 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherViewHolder> {
 
     @Override
     public void onBindViewHolder(WeatherViewHolder holder, int position) {
-        holder.setTextViews(list.get(position));
+        holder.setTextViews(list.get(position), position);
     }
 
     @Override

@@ -15,11 +15,9 @@ public class DailyWeather {
     public int getID() {
         return ID;
     }
-
     public String getState() {
         return state;
     }
-
     public ArrayList<Integer> getMinTempList() {
         return minTemp;
     }
